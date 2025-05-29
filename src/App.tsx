@@ -4,18 +4,30 @@ import './App.css'; // 기본 CSS는 필요하면 그대로 두거나 수정/삭
 function App() {
   // 상태 변수 정의
   const [gameName, setGameName] = useState<string>(''); // 게임 이름
-  const [tagLine, setTagLine] = useState<string>('');   // 태그라인 (예: KR1)
-  const [puuid, setPuuid] = useState<string>('');       // 조회된 플레이어 PUUID
-  const [message, setMessage] = useState<string>('');   // 사용자에게 보여줄 메시지 (성공/오류)
+  const [tagLine, setTagLine] = useState<string>('');    // 태그라인 (예: KR1)
+  const [puuid, setPuuid] = useState<string>('');         // 조회된 플레이어 PUUID
+  const [message, setMessage] = useState<string>('');     // 사용자에게 보여줄 메시지 (성공/오류)
   const [matchesResult, setMatchesResult] = useState<any>(null); // 경기 조회 결과
+
+  // 백엔드 URL을 환경 변수에서 가져옵니다.
+  // 이 부분이 핵심입니다!
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // 만약 환경 변수가 제대로 설정되지 않았을 경우를 대비한 경고 (선택 사항)
+  if (!BACKEND_URL) {
+    console.warn("경고: VITE_BACKEND_URL 환경 변수가 설정되지 않았습니다! 로컬 개발 환경이 아니라면 문제가 발생할 수 있습니다.");
+    // 실제 서비스에서는 여기에 더 강력한 오류 처리 로직을 추가할 수 있습니다.
+  }
 
   // Riot ID로 계정 정보 조회 함수
   const fetchAccountByRiotID = async () => {
     setMessage('플레이어 정보 조회 중...');
-    setMatchesResult(null); // 새로운 조회 시작 시 이전 결과 초기화
+    setPuuid(''); // 새로운 조회 시작 시 이전 PUUID 초기화
+    setMatchesResult(null); // 새로운 조회 시작 시 이전 경기 결과 초기화
+
     try {
-      // 백엔드 API 엔드포인트 호출
-      const response = await fetch(`http://localhost:8080/account/riotid?gameName=${gameName}&tagLine=${tagLine}`);
+      // 백엔드 API 엔드포인트 호출 - 환경 변수 사용!
+      const response = await fetch(`${BACKEND_URL}/account/riotid?gameName=${gameName}&tagLine=${tagLine}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -25,12 +37,10 @@ function App() {
       } else {
         // 오류 응답 처리
         setMessage(`오류: ${data.error || '알 수 없는 오류 발생'}`);
-        setPuuid('');
       }
     } catch (error) {
       // 네트워크 오류 등 예외 처리
       setMessage(`네트워크 오류: ${error instanceof Error ? error.message : String(error)}`);
-      setPuuid('');
     }
   };
 
@@ -43,8 +53,8 @@ function App() {
     setMessage('경기 정보 조회 중...');
     setMatchesResult(null); // 새로운 조회 시작 시 이전 결과 초기화
     try {
-      // 백엔드 API 엔드포인트 호출 (경기 5개만 가져오도록 count=5 추가)
-      const response = await fetch(`http://localhost:8080/player/matches/${puuid}?count=5`);
+      // 백엔드 API 엔드포인트 호출 (경기 5개만 가져오도록 count=5 추가) - 환경 변수 사용!
+      const response = await fetch(`${BACKEND_URL}/player/matches/${puuid}?count=5`);
       const data = await response.json();
 
       if (response.ok) {
