@@ -8,7 +8,11 @@ function App() {
   const [message, setMessage] = useState<string>('');
   const [matchesResult, setMatchesResult] = useState<any>(null);
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+  // 환경 변수 끝의 슬래시 유무에 관계없이 경로를 생성합니다.
+  const getUrl = (path: string) => {
+    const baseUrl = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || '';
+    return `${baseUrl}${path}`;
+  };
 
   const fetchAccountByRiotID = async () => {
     setMessage('플레이어 조회 중...');
@@ -16,7 +20,7 @@ function App() {
     setMatchesResult(null);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/account/riotid?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
+      const response = await fetch(getUrl(`/api/account/riotid?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`));
       const data = await response.json();
 
       if (response.ok) {
@@ -26,7 +30,7 @@ function App() {
         setMessage(`오류: ${data.error || '조회 실패'}`);
       }
     } catch (error) {
-      setMessage('네트워크 에러');
+      setMessage('네트워크 에러가 발생했습니다.');
     }
   };
 
@@ -36,17 +40,17 @@ function App() {
     setMatchesResult(null);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/player/matches/${puuid}`);
+      const response = await fetch(getUrl(`/api/player/matches/${puuid}`));
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`분석 완료! 총 ${data.matchesCount}개 경기 분석.`);
+        setMessage(`분석 완료! 최근 ${data.matchesCount}개 경기를 확인했습니다.`);
         setMatchesResult(data);
       } else {
         setMessage(`오류: ${data.error || '분석 실패'}`);
       }
     } catch (error) {
-      setMessage('네트워크 에러');
+      setMessage('데이터를 가져오는 중 오류가 발생했습니다.');
     }
   };
 
@@ -66,15 +70,15 @@ function App() {
           </div>
         )}
 
-        {message && <p className="message">{message}</p>}
+        {message && <p className={`message ${message.includes('오류') ? 'error' : ''}`}>{message}</p>}
 
         {matchesResult && (
           <div className="results">
             <h3>상세 결과</h3>
             {matchesResult.details && matchesResult.details.length > 0 ? (
-              matchesResult.details.map((d: string, i: number) => <p key={i} style={{color: 'red'}}>⚠️ {d}</p>)
+              matchesResult.details.map((d: string, i: number) => <p key={i} style={{color: '#ff4655'}}>⚠️ {d}</p>)
             ) : (
-              <p>의심되는 패턴이 없습니다.</p>
+              <p>의심되는 어뷰징 패턴이 발견되지 않았습니다.</p>
             )}
           </div>
         )}
