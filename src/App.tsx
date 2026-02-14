@@ -33,6 +33,7 @@ function App() {
 
       console.log('응답 상태:', response.status);
       console.log('응답 데이터:', data);
+      console.log('응답 전체:', JSON.stringify(data, null, 2));
 
       if (response.ok) {
         // 응답 구조 확인: data.puuid 또는 data.data.puuid
@@ -45,7 +46,16 @@ function App() {
           setMessage('오류: PUUID 정보가 없습니다.');
         }
       } else {
-        setMessage(`오류: ${data.error || '조회 실패'}`);
+        // 500 에러 등의 상세 정보 표시
+        const errorMsg = data.error || data.message || '조회 실패';
+        console.error('서버 에러 상세:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          message: data.message,
+          data: data
+        });
+        setMessage(`오류 (${response.status}): ${errorMsg}`);
       }
     } catch (error) {
       console.error('네트워크 에러:', error);
