@@ -20,17 +20,31 @@ function App() {
     setMatchesResult(null);
 
     try {
-      const response = await fetch(getUrl(`/api/account/riotid?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`));
+      const url = getUrl(`/api/account/riotid?gameName=${encodeURIComponent(gameName)}&tagLine=${encodeURIComponent(tagLine)}`);
+      console.log('요청 URL:', url);
+      
+      const response = await fetch(url);  
       const data = await response.json();
 
+      console.log('응답 상태:', response.status);
+      console.log('응답 데이터:', data);
+
       if (response.ok) {
-        setPuuid(data.puuid);
-        setMessage('조회 성공!');
+        // 응답 구조 확인: data.puuid 또는 data.data.puuid
+        const puuidValue = data.puuid || data.data?.puuid;
+        if (puuidValue) {
+          setPuuid(puuidValue);
+          setMessage('조회 성공!'); 
+        } else {
+          console.error('PUUID를 찾을 수 없습니다. 응답:', data);
+          setMessage('오류: PUUID 정보가 없습니다.');
+        }
       } else {
         setMessage(`오류: ${data.error || '조회 실패'}`);
       }
     } catch (error) {
-      setMessage('네트워크 에러가 발생했습니다.');
+      console.error('네트워크 에러:', error);
+      setMessage(`네트워크 에러: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 
@@ -40,8 +54,14 @@ function App() {
     setMatchesResult(null);
 
     try {
-      const response = await fetch(getUrl(`/api/player/matches/${puuid}`));
+      const url = getUrl(`/api/player/matches/${puuid}`);
+      console.log('매치 조회 URL:', url);
+      
+      const response = await fetch(url);
       const data = await response.json();
+
+      console.log('매치 응답 상태:', response.status);
+      console.log('매치 응답 데이터:', data);
 
       if (response.ok) {
         setMessage(`분석 완료! 최근 ${data.matchesCount}개 경기를 확인했습니다.`);
@@ -50,7 +70,8 @@ function App() {
         setMessage(`오류: ${data.error || '분석 실패'}`);
       }
     } catch (error) {
-      setMessage('데이터를 가져오는 중 오류가 발생했습니다.');
+      console.error('매치 조회 에러:', error);
+      setMessage(`데이터 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 
