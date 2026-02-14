@@ -15,6 +15,11 @@ function App() {
   };
 
   const fetchAccountByRiotID = async () => {
+    if (!gameName.trim() || !tagLine.trim()) {
+      setMessage('이름과 태그를 입력해주세요.');
+      return;
+    }
+
     setMessage('플레이어 조회 중...');
     setPuuid('');
     setMatchesResult(null);
@@ -34,7 +39,7 @@ function App() {
         const puuidValue = data.puuid || data.data?.puuid;
         if (puuidValue) {
           setPuuid(puuidValue);
-          setMessage('조회 성공!'); 
+          setMessage('조회 성공!');
         } else {
           console.error('PUUID를 찾을 수 없습니다. 응답:', data);
           setMessage('오류: PUUID 정보가 없습니다.');
@@ -44,7 +49,8 @@ function App() {
       }
     } catch (error) {
       console.error('네트워크 에러:', error);
-      setMessage(`네트워크 에러: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류';
+      setMessage(`네트워크 에러: ${errorMsg}`);
     }
   };
 
@@ -95,11 +101,15 @@ function App() {
 
         {matchesResult && (
           <div className="results">
-            <h3>상세 결과</h3>
+            <h3>분석 결과</h3>
+            <p>총 경기 수: <strong>{matchesResult.matchesCount}</strong></p>
+            <p>어뷰징 의심: <strong>{matchesResult.abusingDetected ? '있음' : '없음'}</strong></p>
+            <hr />
+            <h4>상세 결과</h4>
             {matchesResult.details && matchesResult.details.length > 0 ? (
               matchesResult.details.map((d: string, i: number) => <p key={i} style={{color: '#ff4655'}}>⚠️ {d}</p>)
             ) : (
-              <p>의심되는 어뷰징 패턴이 발견되지 않았습니다.</p>
+              <p style={{color: '#00d084'}}>✓ 의심되는 어뷰징 패턴이 발견되지 않았습니다.</p>
             )}
           </div>
         )}
