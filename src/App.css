@@ -16,6 +16,228 @@
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Oswald:wght@500;700&display=swap');
+
+:root {
+  --val-bg: #0f1923;
+  --val-card: #1f2326;
+  --val-red: #ff4655;
+  --val-red-hover: #ff5866;
+  --val-text: #ece8e1;
+  --val-muted: #8b978f;
+  --val-border: #333333;
+}
+
+body {
+  margin: 0;
+  background-color: var(--val-bg);
+  color: var(--val-text);
+  font-family: 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  width: 100%;
+  background-color: var(--val-card);
+  padding: 30px 0;
+  text-align: center;
+  border-bottom: 2px solid var(--val-red);
+}
+
+.logo {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--val-text);
+}
+
+.subtitle {
+  color: var(--val-muted);
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+/* Search Section */
+.search-section {
+  background: var(--val-card);
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--val-border);
+  margin-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  background: var(--val-bg);
+  border: 1px solid var(--val-border);
+  color: white;
+  padding: 15px;
+  font-size: 1rem;
+  outline: none;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+input:focus {
+  border-color: var(--val-red);
+}
+
+.hash {
+  color: var(--val-muted);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+button {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 700;
+  padding: 15px 30px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #ece8e1;
+  color: var(--val-bg);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: white;
+}
+
+.btn-danger {
+  background-color: var(--val-red);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--val-red-hover);
+}
+
+.analyze-btn {
+  width: 100%;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+/* Messages & Alerts */
+.status-message {
+  background: var(--val-card);
+  padding: 15px;
+  border-left: 4px solid #4caf50;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.status-message.error {
+  border-left-color: var(--val-red);
+}
+
+.alert-box {
+  background: rgba(255, 70, 85, 0.1);
+  border: 1px solid var(--val-red);
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 4px;
+}
+
+.alert-box h3 {
+  color: var(--val-red);
+  margin-top: 0;
+}
+
+.alert-box ul {
+  color: #ffb4b4;
+  margin-bottom: 0;
+}
+
+/* Table Design */
+.table-container {
+  background: var(--val-card);
+  padding: 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.table-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--val-border);
+  padding-bottom: 10px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.stats-table th {
+  background-color: var(--val-bg);
+  color: var(--val-muted);
+  padding: 15px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.stats-table td {
+  padding: 15px;
+  border-bottom: 1px solid var(--val-border);
+  color: var(--val-text);
+}
+
+.stats-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.player-name {
+  font-weight: bold;
+  text-align: left;
+}
+
+.suspect-row {
+  background-color: rgba(255, 70, 85, 0.05);
+}
+
+.suspect-row td {
+  color: var(--val-red);
+}
+
+.high-loss {
+  color: var(--val-red);
+  font-weight: bold;
+}
+
+.kda-text {
+  letter-spacing: 1px;
 }
 
 @keyframes logo-spin {
