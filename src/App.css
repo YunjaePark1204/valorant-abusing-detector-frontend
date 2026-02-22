@@ -2,14 +2,17 @@
 
 :root {
   /* 파스텔 톤 팔레트 */
-  --bg-color: #fff9f9; /* 아주 연한 핑크베이지 배경 */
+  --bg-color: #fff9f9; 
   --card-bg: #ffffff;
-  --primary-color: #a2c2e8; /* 파스텔 블루 (검색 버튼) */
-  --primary-hover: #8baad0;
-  --secondary-color: #ffb6b9; /* 파스텔 핑크 (분석 버튼) */
+  
+  /* 🔹 검색 버튼 색상을 진하고 또렷한 딥 스카이 블루로 변경 */
+  --primary-color: #5c8ab9; 
+  --primary-hover: #4a75a1; 
+  
+  --secondary-color: #ffb6b9; 
   --secondary-hover: #fa9c9f;
   
-  --text-main: #5a5a5a; /* 부드러운 다크 그레이 */
+  --text-main: #5a5a5a; 
   --text-muted: #9e9e9e;
   --border-color: #f1e9e9;
   
@@ -47,7 +50,7 @@ body {
   margin: 0;
   font-size: 2.2rem;
   font-weight: 700;
-  color: #8da9d4; /* 살짝 진한 파스텔 블루 */
+  color: #5c8ab9; /* 로고 색상도 버튼과 깔맞춤하여 조금 더 진하게 */
   letter-spacing: 1px;
 }
 
@@ -95,7 +98,7 @@ input {
 
 input:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(162, 194, 232, 0.2);
+  box-shadow: 0 0 0 3px rgba(92, 138, 185, 0.2);
 }
 
 .hash {
