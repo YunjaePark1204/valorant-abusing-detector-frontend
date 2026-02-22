@@ -1,37 +1,28 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Oswald:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 :root {
-  --val-bg: #0f1923;
-  --val-card: #1f2326;
-  --val-red: #ff4655;
-  --val-red-hover: #ff5866;
-  --val-text: #ece8e1;
-  --val-muted: #8b978f;
-  --val-border: #333333;
+  /* 파스텔 톤 팔레트 */
+  --bg-color: #fff9f9; /* 아주 연한 핑크베이지 배경 */
+  --card-bg: #ffffff;
+  --primary-color: #a2c2e8; /* 파스텔 블루 (검색 버튼) */
+  --primary-hover: #8baad0;
+  --secondary-color: #ffb6b9; /* 파스텔 핑크 (분석 버튼) */
+  --secondary-hover: #fa9c9f;
+  
+  --text-main: #5a5a5a; /* 부드러운 다크 그레이 */
+  --text-muted: #9e9e9e;
+  --border-color: #f1e9e9;
+  
+  --alert-bg: #ffebeb;
+  --alert-text: #e07a7a;
+  --success-bg: #eef7ee;
+  --success-text: #70a970;
 }
 
 body {
   margin: 0;
-  background-color: var(--val-bg);
-  color: var(--val-text);
+  background-color: var(--bg-color);
+  color: var(--text-main);
   font-family: 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -45,24 +36,25 @@ body {
 
 .header {
   width: 100%;
-  background-color: var(--val-card);
-  padding: 30px 0;
+  background-color: var(--card-bg);
+  padding: 40px 0 30px;
   text-align: center;
-  border-bottom: 2px solid var(--val-red);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .logo {
-  font-family: 'Oswald', sans-serif;
-  font-size: 2.5rem;
+  margin: 0;
+  font-size: 2.2rem;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--val-text);
+  color: #8da9d4; /* 살짝 진한 파스텔 블루 */
+  letter-spacing: 1px;
 }
 
 .subtitle {
-  color: var(--val-muted);
-  margin-top: 5px;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-size: 0.95rem;
 }
 
 .container {
@@ -72,193 +64,184 @@ body {
   box-sizing: border-box;
 }
 
-/* Search Section */
-.search-section {
-  background: var(--val-card);
-  padding: 20px;
-  border-radius: 4px;
-  border: 1px solid var(--val-border);
-  margin-bottom: 20px;
+/* 카드 공통 스타일 */
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
+/* 검색 섹션 */
 .input-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 input {
   flex: 1;
-  background: var(--val-bg);
-  border: 1px solid var(--val-border);
-  color: white;
-  padding: 15px;
+  background: #fcfbfc;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 16px;
   font-size: 1rem;
+  border-radius: 12px;
   outline: none;
   font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
 }
 
 input:focus {
-  border-color: var(--val-red);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(162, 194, 232, 0.2);
 }
 
 .hash {
-  color: var(--val-muted);
-  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
 button {
   font-family: 'Noto Sans KR', sans-serif;
   font-weight: 700;
-  padding: 15px 30px;
+  padding: 16px 28px;
   border: none;
+  border-radius: 12px;
   cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  color: white;
 }
 
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none !important;
 }
 
-.btn-primary {
-  background-color: #ece8e1;
-  color: var(--val-bg);
+button:active {
+  transform: scale(0.98);
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: white;
-}
+.btn-primary { background-color: var(--primary-color); }
+.btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
 
-.btn-danger {
-  background-color: var(--val-red);
-  color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background-color: var(--val-red-hover);
-}
+.btn-secondary { background-color: var(--secondary-color); }
+.btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
 
 .analyze-btn {
   width: 100%;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(255, 182, 185, 0.4);
 }
 
-/* Messages & Alerts */
+/* 메시지 알림 */
 .status-message {
-  background: var(--val-card);
-  padding: 15px;
-  border-left: 4px solid #4caf50;
-  margin-bottom: 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
   font-weight: 500;
+  text-align: center;
 }
 
-.status-message.error {
-  border-left-color: var(--val-red);
-}
+.status-message.success { background-color: var(--success-bg); color: var(--success-text); }
+.status-message.error { background-color: var(--alert-bg); color: var(--alert-text); }
 
+/* 어뷰징 알림 박스 */
 .alert-box {
-  background: rgba(255, 70, 85, 0.1);
-  border: 1px solid var(--val-red);
-  padding: 20px;
-  margin-bottom: 30px;
-  border-radius: 4px;
+  background: var(--alert-bg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  border: 1px dashed var(--secondary-color);
 }
 
 .alert-box h3 {
-  color: var(--val-red);
+  color: var(--alert-text);
   margin-top: 0;
+  margin-bottom: 12px;
 }
 
 .alert-box ul {
-  color: #ffb4b4;
-  margin-bottom: 0;
+  color: #c96b6b;
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
 }
 
-/* Table Design */
-.table-container {
-  background: var(--val-card);
-  padding: 20px;
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
+/* 테이블 디자인 */
+.table-container { padding: 30px; }
 .table-title {
   margin-top: 0;
   margin-bottom: 20px;
-  font-size: 1.2rem;
-  border-bottom: 1px solid var(--val-border);
-  padding-bottom: 10px;
+  font-size: 1.25rem;
+  color: #6b82a3;
+}
+
+.table-responsive {
+  overflow-x: auto;
 }
 
 .stats-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: center;
 }
 
 .stats-table th {
-  background-color: var(--val-bg);
-  color: var(--val-muted);
-  padding: 15px;
+  background-color: #f8f9fa;
+  color: var(--text-muted);
+  padding: 16px;
   font-weight: 500;
   font-size: 0.9rem;
+  border-bottom: 2px solid var(--border-color);
 }
+
+.stats-table th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.stats-table th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
 .stats-table td {
-  padding: 15px;
-  border-bottom: 1px solid var(--val-border);
-  color: var(--val-text);
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
 }
 
-.stats-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-}
+.stats-table tbody tr { transition: background-color 0.2s; }
+.stats-table tbody tr:hover { background-color: #fafbfc; }
 
 .player-name {
-  font-weight: bold;
+  font-weight: 700;
   text-align: left;
+  color: #6b82a3;
 }
 
-.suspect-row {
-  background-color: rgba(255, 70, 85, 0.05);
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin: 0 2px;
 }
 
-.suspect-row td {
-  color: var(--val-red);
-}
+.badge.ally { background-color: #e3f0ff; color: #5a87be; }
+.badge.enemy { background-color: #ffe8e8; color: #d67474; }
 
 .high-loss {
-  color: var(--val-red);
-  font-weight: bold;
+  color: var(--alert-text);
+  font-weight: 700;
 }
 
-.kda-text {
-  letter-spacing: 1px;
-}
+.suspect-row { background-color: #fffaf0; }
+.suspect-row:hover { background-color: #fff4e0 !important; }
+.warning-icon { font-size: 1.1rem; margin-left: 6px; }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 0;
 }
