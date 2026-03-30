@@ -38,11 +38,11 @@ function App() {
   const [gameName, setGameName] = useState<string>('');
   const [tagLine, setTagLine] = useState<string>('');
   const [puuid, setPuuid] = useState<string>('');
+  const [region, setRegion] = useState<string>(''); // 🔥 플레이어의 서버 지역 상태 추가
   const [message, setMessage] = useState<string>('');
   const [matchesResult, setMatchesResult] = useState<MatchResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // 탭 및 필터 상태
   const [activeTab, setActiveTab] = useState<'history' | 'abusing'>('history');
   const [filterMode, setFilterMode] = useState<string>('전체');
 
@@ -55,6 +55,7 @@ function App() {
     setIsLoading(true);
     setMessage('플레이어 정보를 찾고 있어요 🔍');
     setPuuid('');
+    setRegion('');
     setMatchesResult(null);
 
     try {
@@ -63,7 +64,10 @@ function App() {
 
       if (response.ok) {
         setPuuid(data.puuid);
-        setMessage('✨ 성공적으로 플레이어를 찾았습니다!');
+        // 🔥 계정 조회 시 라이엇이 알려주는 서버 정보(ap, kr, na, eu)를 자동 저장
+        const playerRegion = data.region || 'kr'; 
+        setRegion(playerRegion);
+        setMessage(`✨ 성공적으로 플레이어를 찾았습니다! (접속 서버: ${playerRegion.toUpperCase()})`);
       } else {
         setMessage(`😥 오류: ${data.error || '조회에 실패했어요.'}`);
       }
@@ -77,16 +81,17 @@ function App() {
   const fetchMatchesByPuuid = async () => {
     if (!puuid) return;
     setIsLoading(true);
-    setMessage('최근 10경기의 기록을 꼼꼼히 분석하고 있어요 📝...');
+    setMessage('최근 최대 30경기의 기록을 꼼꼼히 분석하고 있어요 📝...');
     setMatchesResult(null);
     setFilterMode('전체');
 
     try {
-      const response = await fetch(getUrl(`/api/player/matches/${puuid}`));
+      // 🔥 검색할 때 해당 유저의 서버(region) 값을 백엔드로 전달!
+      const response = await fetch(getUrl(`/api/player/matches/${puuid}?region=${region}`));
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`🎉 분석 완료! 최근 매치 데이터를 성공적으로 가져왔습니다.`);
+        setMessage(`🎉 분석 완료! 최근 ${data.matchesCount}개 매치 데이터를 성공적으로 가져왔습니다.`);
         setMatchesResult(data);
       } else {
         setMessage(`😥 오류: ${data.error || '분석에 실패했어요.'}`);
@@ -98,7 +103,6 @@ function App() {
     }
   };
 
-  // 모드 필터링 및 요약 계산 로직
   const getFilteredHistory = () => {
     if (!matchesResult?.history) return [];
     if (filterMode === '전체') return matchesResult.history;
@@ -160,17 +164,15 @@ function App() {
 
         {matchesResult && (
           <div className="dashboard-wrapper">
-            {/* 탭 네비게이션 */}
             <div className="tabs">
               <div className={`tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
-                최근 전적 상세
+                최근 전적 상세 ({matchesResult.matchesCount}전)
               </div>
               <div className={`tab ${activeTab === 'abusing' ? 'active' : ''}`} onClick={() => setActiveTab('abusing')}>
                 조우한 플레이어 / 어뷰징 분석
               </div>
             </div>
 
-            {/* 탭 1: 매치 히스토리 (전적 검색 사이트 형태) */}
             {activeTab === 'history' && (
               <div className="tab-content">
                 <div className="filter-row">
@@ -222,7 +224,6 @@ function App() {
               </div>
             )}
 
-            {/* 탭 2: 조우한 플레이어 및 어뷰징 분석 (기존 기능) */}
             {activeTab === 'abusing' && (
               <div className="tab-content">
                 {matchesResult.abusingDetected && matchesResult.details && matchesResult.details.length > 0 && (
@@ -233,7 +234,7 @@ function App() {
                 )}
 
                 <div className="table-container card">
-                  <h3 className="table-title">📊 최근 조우한 플레이어 분석 (모든 모드 합산)</h3>
+                  <h3 className="table-title">📊 최근 조우한 플레이어 분석 (총 {matchesResult.matchesCount}경기 기반)</h3>
                   {matchesResult.players && matchesResult.players.length > 0 ? (
                     <div className="table-responsive">
                       <table className="stats-table">
