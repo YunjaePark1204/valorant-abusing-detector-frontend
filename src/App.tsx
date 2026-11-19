@@ -379,6 +379,71 @@ function App() {
     };
   }, [matchesResult]);
 
+  const renderEncounterDetails = (p: PlayerStat) => {
+    if (!p.encounters) return null;
+    return (
+      <div className="encounter-list-box">
+        <div className="encounter-list-title">
+          <span>
+            <strong>{p.name}</strong>님과 만난 게임 ({p.encounters.length}경기)
+            {p.suspicionReasons && p.suspicionReasons.length > 0 && (
+              <span className="reason-inline"> — {p.suspicionReasons.join(' · ')}</span>
+            )}
+          </span>
+          <button
+            type="button"
+            className="mini-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopyReport(p);
+            }}
+          >
+            {copiedId === p.puuid ? '복사됨 ✓' : '매치 내역 복사'}
+          </button>
+        </div>
+
+        <div className="encounter-grid">
+          {p.encounters.map((enc) => {
+            const theirAgent = resolveAgent(assets, enc.theirAgentId, enc.theirAgent);
+            return (
+              <div
+                key={enc.matchId}
+                className={`encounter-card ${
+                  enc.targetResult === '승리'
+                    ? 'win'
+                    : enc.targetResult === '패배'
+                    ? 'loss'
+                    : 'draw'
+                }`}
+              >
+                <div className="enc-date">{formatDateTime(enc.gameStart)}</div>
+                <div className="enc-map">
+                  <strong>{enc.map}</strong> ({enc.roundsWon}:{enc.roundsLost})
+                </div>
+                <div className="enc-rel">
+                  <span className={`badge ${enc.relation === '아군' ? 'ally' : 'enemy'}`}>
+                    {enc.relation}
+                  </span>
+                  {enc.sameParty && <span className="party-pill">파티</span>}
+                </div>
+                <div className="enc-their">
+                  {theirAgent.icon && (
+                    <img src={theirAgent.icon} alt={theirAgent.name} className="agent-avatar-xs" />
+                  )}
+                  <span>
+                    {theirAgent.name} · {enc.theirKills}/{enc.theirDeaths}/{enc.theirAssists} (ACS{' '}
+                    {enc.theirAcs.toFixed(0)})
+                  </span>
+                </div>
+                <div className="enc-result">내 결과: {enc.targetResult}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const renderMatchCard = (m: MatchSummary) => {
     const isExpanded = !!expandedMatches[m.matchId];
     const agentInfo = resolveAgent(assets, m.agentId, m.agent);
@@ -865,202 +930,206 @@ function App() {
                 </div>
 
                 {filteredPlayers.length > 0 ? (
-                  <div className="table-responsive">
-                    <table className="stats-table">
-                      <thead>
-                        <tr>
-                          <th>플레이어 (클릭 시 경기 상세)</th>
-                          <th>만남</th>
-                          <th>적군 전적 (승/패율)</th>
-                          <th>아군 전적</th>
-                          <th>평균 ACS (아/적)</th>
-                          <th>의심도</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPlayers.map((p) => {
-                          const isOpen = expandedPlayer === p.puuid;
-                          const decidedEnemy = p.enemyWon + p.enemyLost;
-                          const enemyLossRate =
-                            decidedEnemy > 0 ? Math.round((p.enemyLost / decidedEnemy) * 100) : 0;
-                          const enemyWinRate =
-                            decidedEnemy > 0 ? Math.round((p.enemyWon / decidedEnemy) * 100) : 0;
-                          const isSkewedWin = decidedEnemy >= 2 && enemyWinRate >= 70;
-                          const isSkewedLoss = decidedEnemy >= 2 && enemyLossRate >= 70;
+                  <>
+                    <div className="table-responsive desktop-only">
+                      <table className="stats-table">
+                        <thead>
+                          <tr>
+                            <th>플레이어 (클릭 시 경기 상세)</th>
+                            <th>만남</th>
+                            <th>적군 전적 (승/패율)</th>
+                            <th>아군 전적</th>
+                            <th>평균 ACS (아/적)</th>
+                            <th>의심도</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredPlayers.map((p) => {
+                            const isOpen = expandedPlayer === p.puuid;
+                            const decidedEnemy = p.enemyWon + p.enemyLost;
+                            const enemyLossRate =
+                              decidedEnemy > 0 ? Math.round((p.enemyLost / decidedEnemy) * 100) : 0;
+                            const enemyWinRate =
+                              decidedEnemy > 0 ? Math.round((p.enemyWon / decidedEnemy) * 100) : 0;
+                            const isSkewedWin = decidedEnemy >= 2 && enemyWinRate >= 70;
+                            const isSkewedLoss = decidedEnemy >= 2 && enemyLossRate >= 70;
 
-                          return (
-                            <React.Fragment key={p.puuid}>
-                              <tr
-                                className={`player-row ${
-                                  p.suspicionLevel === 'high' ? 'suspect-row' : ''
-                                } ${isOpen ? 'open-row' : ''}`}
-                                onClick={() => setExpandedPlayer(isOpen ? null : p.puuid)}
-                              >
-                                <td className="player-name-cell">
-                                  <div className="player-cell-top">
-                                    <button
-                                      type="button"
-                                      className="player-link-btn"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (p.gameName && p.tagLine) {
-                                          searchPlayer(p.gameName, p.tagLine);
-                                        }
-                                      }}
-                                      title="이 플레이어 전적 검색"
-                                    >
-                                      {p.name}
-                                    </button>
-                                    {p.samePartyCount > 0 && (
-                                      <span className="party-pill">파티 {p.samePartyCount}</span>
-                                    )}
-                                  </div>
-                                  <div className="player-tier-sub">{p.latestTier}</div>
-                                </td>
-
-                                <td>
-                                  <strong>{p.met}회</strong>
-                                  <div className="sub-cell">
-                                    아군 {p.asAlly} / 적군 {p.asEnemy}
-                                  </div>
-                                </td>
-
-                                <td>
-                                  {p.asEnemy > 0 ? (
-                                    <>
-                                      <span>
-                                        {p.enemyWon}승 {p.enemyLost}패
-                                      </span>
-                                      <div
-                                        className={`sub-cell ${
-                                          isSkewedLoss || isSkewedWin ? 'high-loss' : ''
-                                        }`}
+                            return (
+                              <React.Fragment key={p.puuid}>
+                                <tr
+                                  className={`player-row ${
+                                    p.suspicionLevel === 'high' ? 'suspect-row' : ''
+                                  } ${isOpen ? 'open-row' : ''}`}
+                                  onClick={() => setExpandedPlayer(isOpen ? null : p.puuid)}
+                                >
+                                  <td className="player-name-cell">
+                                    <div className="player-cell-top">
+                                      <button
+                                        type="button"
+                                        className="player-link-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (p.gameName && p.tagLine) {
+                                            searchPlayer(p.gameName, p.tagLine);
+                                          }
+                                        }}
+                                        title="이 플레이어 전적 검색"
                                       >
-                                        {enemyWinRate >= enemyLossRate
-                                          ? `승률 ${enemyWinRate}%`
-                                          : `패배율 ${enemyLossRate}%`}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <span className="muted">-</span>
+                                        {p.name}
+                                      </button>
+                                      {p.samePartyCount > 0 && (
+                                        <span className="party-pill">파티 {p.samePartyCount}</span>
+                                      )}
+                                    </div>
+                                    <div className="player-tier-sub">{p.latestTier}</div>
+                                  </td>
+
+                                  <td>
+                                    <strong>{p.met}회</strong>
+                                    <div className="sub-cell">
+                                      아군 {p.asAlly} / 적군 {p.asEnemy}
+                                    </div>
+                                  </td>
+
+                                  <td>
+                                    {p.asEnemy > 0 ? (
+                                      <>
+                                        <span>
+                                          {p.enemyWon}승 {p.enemyLost}패
+                                        </span>
+                                        <div
+                                          className={`sub-cell ${
+                                            isSkewedLoss || isSkewedWin ? 'high-loss' : ''
+                                          }`}
+                                        >
+                                          {enemyWinRate >= enemyLossRate
+                                            ? `승률 ${enemyWinRate}%`
+                                            : `패배율 ${enemyLossRate}%`}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <span className="muted">-</span>
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    {p.asAlly > 0 ? (
+                                      <span>
+                                        {p.allyWon}승 {p.allyLost}패
+                                      </span>
+                                    ) : (
+                                      <span className="muted">-</span>
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    <strong>{p.avgAcs.toFixed(0)}</strong>
+                                    <div className="sub-cell">
+                                      {p.asAlly > 0 ? p.acsAsAlly.toFixed(0) : '-'} /{' '}
+                                      {p.asEnemy > 0 ? p.acsAsEnemy.toFixed(0) : '-'}
+                                    </div>
+                                  </td>
+
+                                  <td>
+                                    {p.suspicionLevel !== 'none' ? (
+                                      <span className={`risk-badge ${p.suspicionLevel}`}>
+                                        {p.suspicionLevel === 'high' ? '의심' : '주의'} {p.suspicionScore}
+                                      </span>
+                                    ) : (
+                                      <span className="muted">정상</span>
+                                    )}
+                                  </td>
+                                </tr>
+
+                                {isOpen && p.encounters && (
+                                  <tr className="encounter-detail-row">
+                                    <td colSpan={6}>{renderEncounterDetails(p)}</td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mobile-player-list mobile-only">
+                      {filteredPlayers.map((p) => {
+                        const isOpen = expandedPlayer === p.puuid;
+                        const decidedEnemy = p.enemyWon + p.enemyLost;
+                        const enemyLossRate =
+                          decidedEnemy > 0 ? Math.round((p.enemyLost / decidedEnemy) * 100) : 0;
+                        const enemyWinRate =
+                          decidedEnemy > 0 ? Math.round((p.enemyWon / decidedEnemy) * 100) : 0;
+                        const isSkewed = decidedEnemy >= 2 && (enemyWinRate >= 70 || enemyLossRate >= 70);
+
+                        return (
+                          <div
+                            key={p.puuid}
+                            className={`mobile-player-card ${
+                              p.suspicionLevel === 'high' ? 'suspect-row' : ''
+                            } ${isOpen ? 'open-card' : ''}`}
+                          >
+                            <div
+                              className="mobile-player-summary"
+                              onClick={() => setExpandedPlayer(isOpen ? null : p.puuid)}
+                            >
+                              <div className="mobile-player-top">
+                                <div className="player-cell-top">
+                                  <button
+                                    type="button"
+                                    className="player-link-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (p.gameName && p.tagLine) {
+                                        searchPlayer(p.gameName, p.tagLine);
+                                      }
+                                    }}
+                                  >
+                                    {p.name}
+                                  </button>
+                                  {p.samePartyCount > 0 && (
+                                    <span className="party-pill">파티 {p.samePartyCount}</span>
                                   )}
-                                </td>
-
-                                <td>
-                                  {p.asAlly > 0 ? (
-                                    <span>
-                                      {p.allyWon}승 {p.allyLost}패
-                                    </span>
-                                  ) : (
-                                    <span className="muted">-</span>
-                                  )}
-                                </td>
-
-                                <td>
-                                  <strong>{p.avgAcs.toFixed(0)}</strong>
-                                  <div className="sub-cell">
-                                    {p.asAlly > 0 ? p.acsAsAlly.toFixed(0) : '-'} /{' '}
-                                    {p.asEnemy > 0 ? p.acsAsEnemy.toFixed(0) : '-'}
-                                  </div>
-                                </td>
-
-                                <td>
+                                </div>
+                                <div className="mobile-player-badges">
                                   {p.suspicionLevel !== 'none' ? (
                                     <span className={`risk-badge ${p.suspicionLevel}`}>
                                       {p.suspicionLevel === 'high' ? '의심' : '주의'} {p.suspicionScore}
                                     </span>
                                   ) : (
-                                    <span className="muted">정상</span>
+                                    <span className="met-pill repeat">{p.met}회 조우</span>
                                   )}
-                                </td>
-                              </tr>
+                                  <span className="expand-chevron">{isOpen ? '▲' : '▼'}</span>
+                                </div>
+                              </div>
 
-                              {isOpen && p.encounters && (
-                                <tr className="encounter-detail-row">
-                                  <td colSpan={6}>
-                                    <div className="encounter-list-box">
-                                      <div className="encounter-list-title">
-                                        <span>
-                                          <strong>{p.name}</strong>님과 만난 게임 ({p.encounters.length}경기)
-                                          {p.suspicionReasons && p.suspicionReasons.length > 0 && (
-                                            <span className="reason-inline">
-                                              {' '}
-                                              — {p.suspicionReasons.join(' · ')}
-                                            </span>
-                                          )}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          className="mini-btn"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleCopyReport(p);
-                                          }}
-                                        >
-                                          {copiedId === p.puuid ? '복사됨 ✓' : '매치 내역 복사'}
-                                        </button>
-                                      </div>
+                              <div className="mobile-player-metrics">
+                                <span>
+                                  아군 {p.asAlly} ({p.allyWon}승{p.allyLost}패)
+                                </span>
+                                <span className={isSkewed ? 'high-loss' : ''}>
+                                  적군 {p.asEnemy} ({p.enemyWon}승{p.enemyLost}패
+                                  {decidedEnemy > 0 &&
+                                    ` · ${
+                                      enemyWinRate >= enemyLossRate
+                                        ? `승${enemyWinRate}%`
+                                        : `패${enemyLossRate}%`
+                                    }`}
+                                  )
+                                </span>
+                                <span>ACS {p.avgAcs.toFixed(0)}</span>
+                              </div>
+                            </div>
 
-                                      <div className="encounter-grid">
-                                        {p.encounters.map((enc) => {
-                                          const theirAgent = resolveAgent(
-                                            assets,
-                                            enc.theirAgentId,
-                                            enc.theirAgent
-                                          );
-                                          return (
-                                            <div
-                                              key={enc.matchId}
-                                              className={`encounter-card ${
-                                                enc.targetResult === '승리'
-                                                  ? 'win'
-                                                  : enc.targetResult === '패배'
-                                                  ? 'loss'
-                                                  : 'draw'
-                                              }`}
-                                            >
-                                              <div className="enc-date">{formatDateTime(enc.gameStart)}</div>
-                                              <div className="enc-map">
-                                                <strong>{enc.map}</strong> ({enc.roundsWon}:{enc.roundsLost})
-                                              </div>
-                                              <div className="enc-rel">
-                                                <span
-                                                  className={`badge ${
-                                                    enc.relation === '아군' ? 'ally' : 'enemy'
-                                                  }`}
-                                                >
-                                                  {enc.relation}
-                                                </span>
-                                                {enc.sameParty && <span className="party-pill">파티</span>}
-                                              </div>
-                                              <div className="enc-their">
-                                                {theirAgent.icon && (
-                                                  <img
-                                                    src={theirAgent.icon}
-                                                    alt={theirAgent.name}
-                                                    className="agent-avatar-xs"
-                                                  />
-                                                )}
-                                                <span>
-                                                  {theirAgent.name} · {enc.theirKills}/{enc.theirDeaths}/
-                                                  {enc.theirAssists} (ACS {enc.theirAcs.toFixed(0)})
-                                                </span>
-                                              </div>
-                                              <div className="enc-result">내 결과: {enc.targetResult}</div>
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                            {isOpen && p.encounters && (
+                              <div className="mobile-encounter-wrap">{renderEncounterDetails(p)}</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 ) : (
                   <p className="empty-message">
                     {onlyRepeats
